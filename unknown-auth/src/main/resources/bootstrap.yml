@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: unknown-auth
+  main:
+    allow-bean-definition-overriding: true
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_HOST:localhost}:${NACOS_PORT:8848}
+        namespace: ${NACOS_NAMESPACE:un-dev}
+        group: ${NACOS_GROUP:UN_GROUP}
+      config:
+        max-retry: 6
+        timeout: 10000
+        file-extension: yml
+        refresh-enabled: true
+        config-retry-time: 10000
+        enable-remote-sync-config: true
+        server-addr: ${spring.cloud.nacos.discovery.server-addr}
+        namespace: ${spring.cloud.nacos.discovery.namespace}
+        group: ${spring.cloud.nacos.discovery.group}
+        name: ${spring.application.name}.${spring.cloud.nacos.config.file-extension}
+
+mybatis-plus:
+  mapper-locations: classpath:mapper/*/*.xml
+  configuration:
+    call-setters-on-nulls: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+
+logging:
+  config: classpath:logback-config.xml
+
+unknown:
+  auth:
+    #日志信息配置
+    logging:
+      #日志存储路径
+      path: ${LOG_PATH:D:/unknown/logs/}
+      #志保存天数
+      keep: ${LOG_KEEP:30}

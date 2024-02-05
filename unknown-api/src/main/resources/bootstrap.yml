@@ -1,0 +1,91 @@
+spring:
+  application:
+    name: unknown-api
+  main:
+    allow-bean-definition-overriding: true
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  cloud:
+    loadbalancer:
+      retry:
+        enabled: true
+    nacos:
+      discovery:
+        server-addr: ${NACOS_HOST:localhost}:${NACOS_PORT:8848}
+        namespace: ${NACOS_NAMESPACE:un-dev}
+        group: ${NACOS_GROUP:UN_GROUP}
+      config:
+        max-retry: 6
+        timeout: 10000
+        file-extension: yml
+        refresh-enabled: true
+        config-retry-time: 10000
+        enable-remote-sync-config: true
+        server-addr: ${spring.cloud.nacos.discovery.server-addr}
+        namespace: ${spring.cloud.nacos.discovery.namespace}
+        group: ${spring.cloud.nacos.discovery.group}
+        name: ${spring.application.name}.${spring.cloud.nacos.config.file-extension}
+    gateway:
+      discovery:
+        locator:
+          #enabled：默认为false，设置为true 开启服务发现和路由的功能，网关自动根据注册中心的服务名为每个服务创建一个router，将以服务名开头的请求路径转发到对应的服务
+          enabled: true
+          #locator.enabled=true 自动路由时，路由的路径默认会使用大写ID，若想要使用小写ID，可将lowerCaseServiceId设置为true
+          lower-case-service-id: true
+          #重写过滤链，解决项目设置了 server.servlet.context-path 导致 locator.enabled=true 默认路由策略404的问题
+      routes:
+        - id: unknown-system
+          uri: lb://unknown-system
+          predicates:
+            - Path=/system/**
+          filters:
+            - SwaggerHeaderFilter
+            - StripPrefix=1
+        - id: unknown-auth
+          uri: lb://unknown-auth
+          predicates:
+            - Path=/auth/**
+          filters:
+            - SwaggerHeaderFilter
+            - StripPrefix=1
+        - id: unknown-document
+          uri: lb://unknown-document
+          predicates:
+            - Path=/document/**
+          filters:
+            - SwaggerHeaderFilter
+            - StripPrefix=1
+        - id: unknown-calendar
+          uri: lb://unknown-calendar
+          predicates:
+            - Path=/calendar/**
+          filters:
+            - SwaggerHeaderFilter
+            - StripPrefix=1
+
+logging:
+  config: classpath:logback-config.xml
+
+unknown:
+  api:
+    #日志信息配置
+    logging:
+      #日志存储路径
+      path: ${LOG_PATH:D:/unknown/logs/}
+      #志保存天数
+      keep: ${LOG_KEEP:30}
+
+
+
+knife4j:
+  # 开启生产环境保护
+  production: false
+  # 开启增强模式
+  enable: true
+  # 开启认证功能
+  basic:
+    enable: true
+    username: admin
+    password: 123456
+
